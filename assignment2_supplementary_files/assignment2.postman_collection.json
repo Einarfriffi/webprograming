@@ -1,0 +1,43 @@
+{
+  "info": {
+    "_postman_id": "Game-Api",
+    "name": "Game API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Reset Game State",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": {
+          "raw": "http://localhost:3000/api/v1/game-state",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "v1", "game-state"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Submit sequence (Level 1)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"sequence\": [\"red\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/v1/game-state/sequence",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "v1", "game-state", "sequence"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

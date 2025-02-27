@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Simon Says</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/tone"></script>
+  </head>
+
+  <body>
+    <div id="simon-container">
+      <div class="container">
+        <label for="sound-select">Select sound: </label>
+        <select id="sound-select">
+          <option value="sine">Sine</option>
+          <option value="square">Square</option>
+          <option value="triangle">Triangle</option>
+        </select>
+      </div>
+      <div class="container" id="game-board">
+        <button class="pad" id="pad-red">Q</button>
+        <button class="pad" id="pad-yellow">W</button>
+        <div class="level-indicator" id="level-indicator">1</div>
+        <button class="pad" id="pad-green">A</button>
+        <button class="pad" id="pad-blue">S</button>
+      </div>
+      <div class="container">
+        <button id="start-btn" class="control-btn">Start</button>
+        <button id="replay-btn" class="control-btn" disabled>Replay</button>
+        <div class="info-container">
+          <img
+            id="info-bubble"
+            src="information.png"
+            alt="Information bubble."
+          />
+          <div class="info-text">
+            Press the Start button to begin the game. At each level, repeat the
+            sequence displayed on the board. If you need to review the sequence
+            before making your move, press the Replay button.
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <p>High score: <span id="high-score">0</span></p>
+      </div>
+    </div>
+    <div id="too-small-warning">
+      <img id="oops-img" src="oops.jpg" alt="An image saying oops." />
+      <p>This website requires at least 600px screen width.</p>
+    </div>
+
+    <div id="failure-modal" class="modal">
+      <div class="modal-content">
+        <h2>Game Over</h2>
+        <p>You failed! Try again.</p>
+        <button id="reset-btn">Restart</button>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
