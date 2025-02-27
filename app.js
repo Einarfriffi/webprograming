@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const levelindicator = document.getElementById("level-indicator");
     const modal = document.getElementById("failure-modal");
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const highscoredisplay = document.getElementById("high-score");
     const colorMap ={
         "pad-red": "red",
         "pad-yellow": "yellow",
@@ -27,8 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
     
     /* My lets */
-    let highscore = document.getElementById("high-score");
-    highscore.innerHTML = localStorage.getItem("highscore") || "0";
+    let highScore = 0;
     let gameSequence = [];
     let userSequence = [];
     let gameStarted = false;
@@ -47,7 +47,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     
     /* call endpoint for game reset
-        reset constants and lets */
+    reset constants and lets */
+
+    const fetchHighScore = async () => {
+        const url = "http://localhost:3000/api/v1/game-state";
+        try {
+            const response = await axios.get(url);
+
+            if (response.data && response.data.highScore) {
+                highScore = response.data.highScore;
+                localStorage.setItem("highscore", highScore);
+            } else {
+                highScore = parseInt(localStorage,getItem("highscore")) || 0;
+            }
+
+        } catch (error) {
+            console.log("something wrong")
+            highScore = parseInt(localStorage.getItem("highscore")) || 0;
+        }
+        highscoredisplay.innerText = highScore;
+    };
+
+    fetchHighScore();
+
+    const updHighScore = (newScore) => {
+        if (newScore > highScore) {
+            highScore = newScore;
+            localStorage.setItem("highscore", highScore);
+            highscoredisplay.innerText = highScore;
+        }
+    };
+
     const putGameState = async () => {
         const url = "http://localhost:3000/api/v1/game-state";
 
@@ -57,7 +87,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("Success: ", response.data);
             console.log("Sequence:", response.data.gameState.sequence);
 
-            highscore.innerHTML = response.data.gameState.highScore;
+            highScore = response.data.gameState.highScore;
+            localStorage.setItem("highscore", highScore);
+            highscoredisplay.innerText = highScore;
             gameSequence =[...response.data.gameState.sequence];
             level = response.data.gameState.level;
 
@@ -72,6 +104,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* send user sequence for verification
         updates game sequence and relevent const and lets
         dispatch event depending on response */
+
+
     const sendUserSequence = async () => {
         const url = "http://localhost:3000/api/v1/game-state/sequence";
         
@@ -95,10 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             level = response.data.gameState.level;
             levelindicator.innerHTML = level;
             
-            if (level > (parseInt(localStorage.getItem("highscore")) || "0")) {
-                localStorage.setItem("highscore", level);
-                highscore.innerHTML = level;
-            };
+            updHighScore(level);
 
             document.dispatchEvent(next_level);
         
