@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         Osc.start();
         await delay(500);
         Osc.stop();
-
+        await delay(200);
         inputOff = false;
     };
 
