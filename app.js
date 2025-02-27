@@ -44,7 +44,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const wrong = new CustomEvent("wrong sequence", {
         detail: {message: "incorrect dummy!"}
     });
-
+    
+    /* call endpoint for game reset
+        reset constants and lets */
     const putGameState = async () => {
         const url = "http://localhost:3000/api/v1/game-state";
 
@@ -66,6 +68,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
+    /* send user sequence for verification
+        updates game sequence and relevent const and lets
+        dispatch event depending on response */
     const sendUserSequence = async () => {
         const url = "http://localhost:3000/api/v1/game-state/sequence";
         
@@ -105,6 +110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
+    /* play tune when pad is active with relevent note and oscullator */
     const playTune = (padId) => {
         let note = noteFreq[padId];
         const selectedOsc = document.getElementById("sound-select").value;
@@ -119,7 +125,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 500);
     };
 
-
+    /* change pad to active depending on color
+        check's user sequence when correct length reached */
     const padactive = (pad) => {
         if (!gameStarted) 
             return;
@@ -140,6 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
         
+    /* click event listener for pads */
     Array.from(pads).forEach(pad => {
         pad.addEventListener("click",() => {
             if (!gameStarted || seqPlaying)
@@ -157,6 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
     
+    /* activates correct color for playing game sequence */
     const inputSequence = (color) => {
         if (!gameStarted)
             return;
@@ -164,6 +173,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         padactive(document.getElementById(`pad-${color}`));
     };
     
+    /* plays game sequence
+        sets seqPlaying state and disables replay so 
+        player cant use buttons during seq playing */
     const playSequence = async () => {
         if (!gameStarted)
             return;
@@ -184,7 +196,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         replayButton.disabled = false;
     };
     
-
+    /* inisates the game */
     const startGame = async () => {
         gameStarted = true;
         startButton.disabled = true;
@@ -200,6 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await playSequence();
     };
 
+    /* resets the game */
     const resetGame = async () => {
         gameSequence = [];
         userSequence = [];
@@ -219,17 +232,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     startButton.addEventListener("click",startGame);
     replayButton.addEventListener("click",playSequence);
     resetButton.addEventListener("click", resetGame)
+    /* event listener for if wrong sequence inputed and opens model window */
     document.addEventListener("wrong sequence", async (event) => {
         console.log(event.detail.message);
         gameStarted = false;
         modal.style.display = "flex";
 
     });
+    /* event listener for next level to play next sequence when next level is reached */
     document.addEventListener("next level", async (event) => {
         console.log(event.detail.message);
         await delay(1500);
         await playSequence();
     });
+    /* event listener for gamepad keyboard use */
     document.addEventListener("keydown", (event) => {
         if (!gameStarted || seqPlaying)
             return;
