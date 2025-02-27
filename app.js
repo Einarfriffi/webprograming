@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let gameStarted = false;
     let level = 1;
     let seqPlaying = false;
+    let inputOff = false;
     let Osc = new Tone.Oscillator().toDestination();
 
 
@@ -111,7 +112,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     /* play tune when pad is active with relevent note and oscullator */
-    const playTune = (padId) => {
+    const playTune = async (padId) => {
+        if (inputOff)
+            return;
+        inputOff = true;
+
         let note = noteFreq[padId];
         const selectedOsc = document.getElementById("sound-select").value;
 
@@ -119,29 +124,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         Osc.frequency.value = note;
 
         Osc.start();
-        
-        setTimeout(() => {
-            Osc.stop();
-        }, 500);
+        await delay(500);
+        Osc.stop();
+
+        inputOff = false;
     };
 
     /* change pad to active depending on color
         check's user sequence when correct length reached */
-    const padactive = (pad) => {
-        if (!gameStarted) 
+    const padactive = async (pad) => {
+        if (!gameStarted || inputOff) 
             return;
 
         console.log(pad.id);
 
         pad.classList.add("active");
 
-        playTune(pad.id);
-        setTimeout(()=> {
-            pad.classList.remove("active");
-        },500);
+        await playTune(pad.id);
+        await delay(500);
+
+        pad.classList.remove("active");  
     };
 
-    checkSequence = () => {
+    const checkSequence = () => {
         if (userSequence.length === level) {
             sendUserSequence();
         }
@@ -150,7 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* click event listener for pads */
     Array.from(pads).forEach(pad => {
         pad.addEventListener("click",() => {
-            if (!gameStarted || seqPlaying)
+            if (!gameStarted || seqPlaying || inputOff)
                 return;
 
             padactive(pad);
@@ -166,11 +171,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     
     /* activates correct color for playing game sequence */
-    const inputSequence = (color) => {
+    const inputSequence = async (color) => {
         if (!gameStarted)
             return;
 
-        padactive(document.getElementById(`pad-${color}`));
+        await padactive(document.getElementById(`pad-${color}`));
     };
     
     /* plays game sequence
@@ -186,10 +191,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         console.log("Playing Sequence:", gameSequence);
 
-        for(const color of gameSequence) {
-            inputSequence(color);
-            await delay(1000);
-        };
+        await gameSequence.reduce(async (prevPromise, color) => {
+            await prevPromise;
+            await inputSequence(color);
+            await delay(500);
+        }, Promise.resolve());
 
         seqPlaying = false;
 
@@ -237,7 +243,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log(event.detail.message);
         gameStarted = false;
         modal.style.display = "flex";
-
     });
     /* event listener for next level to play next sequence when next level is reached */
     document.addEventListener("next level", async (event) => {
@@ -247,7 +252,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     /* event listener for gamepad keyboard use */
     document.addEventListener("keydown", (event) => {
-        if (!gameStarted || seqPlaying)
+        if (!gameStarted || seqPlaying || inputOff)
             return;
 
         const key = event.key.toLowerCase();
