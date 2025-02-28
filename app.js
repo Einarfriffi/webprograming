@@ -83,18 +83,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             const response = await axios.put(url);
-
-            console.log("Success: ", response.data);
-            console.log("Sequence:", response.data.gameState.sequence);
-
             highScore = response.data.gameState.highScore;
             localStorage.setItem("highscore", highScore);
             highscoredisplay.innerText = highScore;
             gameSequence =[...response.data.gameState.sequence];
             level = response.data.gameState.level;
-
-            console.log("updated:", level);
-
         } 
         catch (error) {
             console.log(error);
@@ -113,19 +106,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const response = await axios.post(url, {
                 "sequence": userSequence
             });
-
-            console.log("new sequence:", response.data.gameState.sequence);
-            console.log(response.data.gameState.level);
-            
             gameSequence = [...response.data.gameState.sequence];
-
-            console.log(gameSequence);
-            console.log("player sequence:", userSequence);
-
             userSequence = [];
-
-            console.log("reset:",userSequence);
-
             level = response.data.gameState.level;
             levelindicator.innerHTML = level;
             
@@ -147,10 +129,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (inputOff)
             return;
         inputOff = true;
-
         let note = noteFreq[padId];
         const selectedOsc = document.getElementById("sound-select").value;
-
         Osc.type = selectedOsc;
         Osc.frequency.value = note;
 
@@ -166,9 +146,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const padactive = async (pad) => {
         if (!gameStarted || inputOff) 
             return;
-
-        console.log(pad.id);
-
         pad.classList.add("active");
 
         await playTune(pad.id);
@@ -188,14 +165,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         pad.addEventListener("click",() => {
             if (!gameStarted || seqPlaying || inputOff)
                 return;
-
             padactive(pad);
 
             userSequence.push(colorMap[pad.id]);
-
-            console.log(userSequence);
-            console.log(level);
-            console.log(userSequence.length);
 
             checkSequence();
         });
@@ -205,7 +177,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inputSequence = async (color) => {
         if (!gameStarted)
             return;
-
         await padactive(document.getElementById(`pad-${color}`));
     };
     
@@ -215,12 +186,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const playSequence = async () => {
         if (!gameStarted)
             return;
-        
         seqPlaying = true;
-
         replayButton.disabled = true;
-
-        console.log("Playing Sequence:", gameSequence);
 
         await gameSequence.reduce(async (prevPromise, color) => {
             await prevPromise;
@@ -239,12 +206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         startButton.disabled = true;
         replayButton.disabled = false;
 
-        console.log("Before API Call: ", gameSequence);
-
         await putGameState();
-
-        console.log("After API Call: ", gameSequence);
-
         await delay(1000);
         await playSequence();
     };
@@ -262,8 +224,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         await putGameState();
     };
-
-        console.log(gameSequence);
 
     /* My ears */
     startButton.addEventListener("click",startGame);
@@ -285,7 +245,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.addEventListener("keydown", (event) => {
         if (!gameStarted || seqPlaying || inputOff)
             return;
-
         const key = event.key.toLowerCase();
 
         if (["q", "w", "a", "s"].includes(key)) {
